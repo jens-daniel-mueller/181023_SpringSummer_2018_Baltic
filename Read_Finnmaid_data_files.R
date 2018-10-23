@@ -1,0 +1,1115 @@
+library(ggplot2)
+library(data.table)
+library(readxl)
+library(seacarb)
+library(gsubfn)
+
+
+
+### 2003
+
+setwd("C:/Mueller_Jens_Data/181023_Spring_Summer_2018/data/pCO2-2003")
+files <- list.files(pattern = "[.]xls$")
+
+for (file in files){
+  
+  df <- data.table(
+    read_excel(file, skip = 2))
+  names(df) <- c("date","Lon","Lat","pCO2","Sal","Tem","dTem")
+  df$Lon <- as.numeric(as.character(df$Lon))
+  df$Lat <- as.numeric(as.character(df$Lat))
+  df$pCO2 <- as.numeric(as.character(df$pCO2))
+  df$Sal <- as.numeric(as.character(df$Sal))
+  df$Tem <- as.numeric(as.character(df$Tem))
+  df$dTem <- as.numeric(as.character(df$dTem))
+  df$cO2 <- as.numeric(NA)
+  df$patm <-as.numeric(NA)
+  df$Teq <- df$Tem + df$dTem
+  df$dTem <- NULL
+  df$xCO2 <- as.numeric(NA)
+  
+  df$route <- strapplyc(as.character(file), ".*(.).xls*", simplify = TRUE)
+  df$ID <- substr(as.character(file), 1, 8)
+
+  if (exists("temp")){
+    temp <- rbind (temp, df)
+  } else{temp <- df}
+  
+}
+
+
+temp$Area <- with(temp,
+  ifelse(Lon>12 & Lon<12.6, "1.MEB",
+  ifelse(Lon>13.1 & Lon<14.3, "2.ARK",
+  ifelse(Lat>57.5 & Lat<58.5 & route %in% c("E", "G"), "4.EGS",
+  ifelse(Lat>56.8 & Lat<57.5 & route=="W", "3.WGS",
+  ifelse(Lat>58.5 & Lat<59 & Lon>20, "5.NGS",
+  ifelse(Lon>22 & Lon<24, "6.WGF",
+  ifelse(Lon>24 & Lon<24.5, "7.HGF", "NaN"))))))))
+
+temp <-temp[complete.cases(temp[,pCO2]),]
+
+temp.mean <- temp[,.(
+  date = mean(date),
+  mean.Sal = mean(Sal, na.rm = TRUE),
+  SD.Sal = sd(Sal, na.rm = TRUE),
+  mean.Tem = mean(Tem, na.rm = TRUE),
+  SD.Tem = sd(Tem, na.rm = TRUE),
+  mean.pCO2 = mean(pCO2, na.rm = TRUE),
+  SD.pCO2 = sd(pCO2, na.rm = TRUE),
+  max.pCO2 = max(pCO2),
+  min.pCO2 = min(pCO2),
+  mean.cO2 = mean(cO2, na.rm = TRUE),
+  SD.cO2 = sd(cO2, na.rm = TRUE),
+  mean.patm = mean(patm, na.rm = TRUE),
+  nr=.N),
+by=.(Area, ID)] [Area != "NaN"]
+
+df.all <- temp
+df.2003 <- temp
+mean.all <- temp.mean
+mean.2003 <- temp.mean
+
+setwd("C:/Mueller_Jens_Data/181023_Spring_Summer_2018/data/Summarized_datasets")
+write.csv(df.2003, "df2003.csv")
+write.csv(mean.2003, "mean2003.csv")
+
+
+rm(df, temp.mean, temp, files, file, df.2003, mean.2003)
+
+
+
+#### 2004
+
+setwd("C:/Mueller_Jens_Data/181023_Spring_Summer_2018/data/pCO2-2004")
+files <- list.files(pattern = "[.]xls$")
+#file <- files[93]
+
+for (file in files){
+  
+  df <- data.table(
+    read_excel(file, skip = 2))
+  names(df) <- c("date","Lon","Lat","pCO2","Sal","Tem","dTem")
+  df$Lon <- as.numeric(as.character(df$Lon))
+  df$Lat <- as.numeric(as.character(df$Lat))
+  df$pCO2 <- as.numeric(as.character(df$pCO2))
+  df$Sal <- as.numeric(as.character(df$Sal))
+  df$Tem <- as.numeric(as.character(df$Tem))
+  df$dTem <- as.numeric(as.character(df$dTem))
+  df$cO2 <- as.numeric(NA)
+  df$patm <-as.numeric(NA)
+  df$Teq <- df$Tem + df$dTem
+  df$dTem <- NULL
+  df$xCO2 <- as.numeric(NA)
+  
+  df$route <- strapplyc(as.character(file), ".*(.).xls*", simplify = TRUE)
+  df$ID <- substr(as.character(file), 1, 8)
+
+  if (exists("temp")){
+    temp <- rbind (temp, df)
+  } else{temp <- df}
+  
+}
+
+
+temp$Area <- with(temp,
+  ifelse(Lon>12 & Lon<12.6, "1.MEB",
+  ifelse(Lon>13.1 & Lon<14.3, "2.ARK",
+  ifelse(Lat>57.5 & Lat<58.5 & route %in% c("E", "G"), "4.EGS",
+  ifelse(Lat>56.8 & Lat<57.5 & route=="W", "3.WGS",
+  ifelse(Lat>58.5 & Lat<59 & Lon>20, "5.NGS",
+  ifelse(Lon>22 & Lon<24, "6.WGF",
+  ifelse(Lon>24 & Lon<24.5, "7.HGF", "NaN"))))))))
+
+temp <-temp[complete.cases(temp[,pCO2]),]
+
+temp.mean <- temp[,.(
+  date = mean(date),
+  mean.Sal = mean(Sal, na.rm = TRUE),
+  SD.Sal = sd(Sal, na.rm = TRUE),
+  mean.Tem = mean(Tem, na.rm = TRUE),
+  SD.Tem = sd(Tem, na.rm = TRUE),
+  mean.pCO2 = mean(pCO2, na.rm = TRUE),
+  SD.pCO2 = sd(pCO2, na.rm = TRUE),
+  max.pCO2 = max(pCO2),
+  min.pCO2 = min(pCO2),
+  mean.cO2 = mean(cO2, na.rm = TRUE),
+  SD.cO2 = sd(cO2, na.rm = TRUE),
+  mean.patm = mean(patm, na.rm = TRUE),
+  nr=.N),
+  by=.(Area, ID)] [Area != "NaN"]
+
+
+df.all <- rbind(df.all, temp)
+#df.2004 <- temp
+mean.all <- rbind(mean.all, temp.mean)
+#mean.2004 <- temp.mean
+
+
+# setwd("C:/Mueller_Jens_Data/181023_Spring_Summer_2018/data/Summarized_datasets")
+# write.csv(df.2004, "df2004.csv")
+# write.csv(mean.2004, "mean2004.csv")
+
+
+rm(df, temp.mean, temp, files, file, df.2004, mean.2004)
+
+
+#### 2005
+
+setwd("C:/Mueller_Jens_Data/181023_Spring_Summer_2018/data/pCO2-2005")
+files <- list.files(pattern = "[.]xls$")
+#file <- files[2]
+
+for (file in files){
+  
+  df <- data.table(
+    read_excel(file))
+  names(df) <- c("date","Lon","Lat","pCO2","Sal","Tem","dTem")
+  df <- df[-1,]
+  df$Lon <- as.numeric(as.character(df$Lon))
+  df$Lat <- as.numeric(as.character(df$Lat))
+  df$pCO2 <- as.numeric(as.character(df$pCO2))
+  df$Sal <- as.numeric(as.character(df$Sal))
+  df$Tem <- as.numeric(as.character(df$Tem))
+  df$dTem <- as.numeric(as.character(df$dTem))
+  df$cO2 <- as.numeric(NA)
+  df$patm <-as.numeric(NA)
+  df$Teq <- df$Tem + df$dTem
+  df$dTem <- NULL
+  df$xCO2 <- as.numeric(NA)
+  
+  df$route <- strapplyc(as.character(file), ".*(.).xls*", simplify = TRUE)
+  df$ID <- substr(as.character(file), 1, 8)
+  
+  if (exists("temp")){
+    temp <- rbind (temp, df)
+  } else{temp <- df}
+  
+}
+
+
+temp$Area <- with(temp,
+   ifelse(Lon>12 & Lon<12.6, "1.MEB",
+   ifelse(Lon>13.1 & Lon<14.3, "2.ARK",
+   ifelse(Lat>57.5 & Lat<58.5 & route %in% c("E", "G"), "4.EGS",
+   ifelse(Lat>56.8 & Lat<57.5 & route=="W", "3.WGS",
+   ifelse(Lat>58.5 & Lat<59 & Lon>20, "5.NGS",
+   ifelse(Lon>22 & Lon<24, "6.WGF",
+   ifelse(Lon>24 & Lon<24.5, "7.HGF", "NaN"))))))))
+
+temp <-temp[complete.cases(temp[,pCO2]),]
+
+
+temp.mean <- temp[,.(
+  date = mean(date),
+  mean.Sal = mean(Sal, na.rm = TRUE),
+  SD.Sal = sd(Sal, na.rm = TRUE),
+  mean.Tem = mean(Tem, na.rm = TRUE),
+  SD.Tem = sd(Tem, na.rm = TRUE),
+  mean.pCO2 = mean(pCO2, na.rm = TRUE),
+  SD.pCO2 = sd(pCO2, na.rm = TRUE),
+  max.pCO2 = max(pCO2),
+  min.pCO2 = min(pCO2),
+  mean.cO2 = mean(cO2, na.rm = TRUE),
+  SD.cO2 = sd(cO2, na.rm = TRUE),
+  mean.patm = mean(patm, na.rm = TRUE),
+  nr=.N),
+  by=.(Area, ID)] [Area != "NaN"]
+
+
+df.all <- rbind(df.all, temp)
+#df.2005 <- temp
+mean.all <- rbind(mean.all, temp.mean)
+#mean.2005 <- temp.mean
+
+
+# setwd("C:/Mueller_Jens_Data/181023_Spring_Summer_2018/data/Summarized_datasets")
+# write.csv(df.2005, "df2005.csv")
+# write.csv(mean.2005, "mean2005.csv")
+
+
+rm(df, temp.mean, temp, files, file, df.2005, mean.2005)
+
+
+
+
+#### 2006
+
+setwd("C:/Mueller_Jens_Data/181023_Spring_Summer_2018/data/pCO2-2006")
+files <- list.files(pattern = "[.]xls$")
+#file <- files[2]
+
+for (file in files){
+  
+  df <- data.table(
+    read_excel(file))
+  names(df) <- c("date","Lon","Lat","pCO2","Sal","Tem","dTem")
+  df <- df[-1,]
+  df$Lon <- as.numeric(as.character(df$Lon))
+  df$Lat <- as.numeric(as.character(df$Lat))
+  df$pCO2 <- as.numeric(as.character(df$pCO2))
+  df$Sal <- as.numeric(as.character(df$Sal))
+  df$Tem <- as.numeric(as.character(df$Tem))
+  df$dTem <- as.numeric(as.character(df$dTem))
+  df$cO2 <- as.numeric(NA)
+  df$patm <-as.numeric(NA)
+  df$Teq <- df$Tem + df$dTem
+  df$dTem <- NULL
+  df$xCO2 <- as.numeric(NA)
+  
+  df$route <- strapplyc(as.character(file), ".*(.).xls*", simplify = TRUE)
+  df$ID <- substr(as.character(file), 1, 8)
+  
+  if (exists("temp")){
+    temp <- rbind (temp, df)
+  } else{temp <- df}
+  
+}
+
+
+temp$Area <- with(temp,
+   ifelse(Lon>12 & Lon<12.6, "1.MEB",
+   ifelse(Lon>13.1 & Lon<14.3, "2.ARK",
+   ifelse(Lat>57.5 & Lat<58.5 & route %in% c("E", "G"), "4.EGS",
+   ifelse(Lat>56.8 & Lat<57.5 & route=="W", "3.WGS",
+   ifelse(Lat>58.5 & Lat<59 & Lon>20, "5.NGS",
+   ifelse(Lon>22 & Lon<24, "6.WGF",
+   ifelse(Lon>24 & Lon<24.5, "7.HGF", "NaN"))))))))
+
+temp <-temp[complete.cases(temp[,pCO2]),]
+
+
+temp.mean <- temp[,.(
+  date = mean(date),
+  mean.Sal = mean(Sal, na.rm = TRUE),
+  SD.Sal = sd(Sal, na.rm = TRUE),
+  mean.Tem = mean(Tem, na.rm = TRUE),
+  SD.Tem = sd(Tem, na.rm = TRUE),
+  mean.pCO2 = mean(pCO2, na.rm = TRUE),
+  SD.pCO2 = sd(pCO2, na.rm = TRUE),
+  max.pCO2 = max(pCO2),
+  min.pCO2 = min(pCO2),
+  mean.cO2 = mean(cO2, na.rm = TRUE),
+  SD.cO2 = sd(cO2, na.rm = TRUE),
+  mean.patm = mean(patm, na.rm = TRUE),
+  nr=.N),
+  by=.(Area, ID)] [Area != "NaN"]
+
+
+df.all <- rbind(df.all, temp)
+#df.2006 <- temp
+mean.all <- rbind(mean.all, temp.mean)
+#mean.2006 <- temp.mean
+
+
+# setwd("C:/Mueller_Jens_Data/181023_Spring_Summer_2018/data/Summarized_datasets")
+# write.csv(df.2006, "df2006.csv")
+# write.csv(mean.2006, "mean2006.csv")
+
+
+rm(df, temp.mean, temp, files, file, df.2006, mean.2006)
+
+
+
+#### 2007
+
+setwd("C:/Mueller_Jens_Data/181023_Spring_Summer_2018/data/pCO2-2007")
+files <- list.files(pattern = "[.]xls$")
+#file <- files[2]
+
+for (file in files){
+  
+  df <- data.table(
+    read_excel(file))
+  names(df) <- c("date","Lon","Lat","pCO2","Sal","Tem")
+  df <- df[-1,]
+  df$Lon <- as.numeric(as.character(df$Lon))
+  df$Lat <- as.numeric(as.character(df$Lat))
+  df$pCO2 <- as.numeric(as.character(df$pCO2))
+  df$Sal <- as.numeric(as.character(df$Sal))
+  df$Tem <- as.numeric(as.character(df$Tem))
+  df$dTem <- as.numeric(NA)
+  df$cO2 <- as.numeric(NA)
+  df$patm <-as.numeric(NA)
+  df$Teq <- df$Tem + df$dTem
+  df$dTem <- NULL
+  df$xCO2 <- as.numeric(NA)
+  
+  df$route <- strapplyc(as.character(file), ".*(.).xls*", simplify = TRUE)
+  df$ID <- substr(as.character(file), 1, 8)
+  
+  if (exists("temp")){
+    temp <- rbind (temp, df)
+  } else{temp <- df}
+  
+}
+
+
+temp$Area <- with(temp,
+   ifelse(Lon>12 & Lon<12.6, "1.MEB",
+   ifelse(Lon>13.1 & Lon<14.3, "2.ARK",
+   ifelse(Lat>57.5 & Lat<58.5 & route %in% c("E", "G"), "4.EGS",
+   ifelse(Lat>56.8 & Lat<57.5 & route=="W", "3.WGS",
+   ifelse(Lat>58.5 & Lat<59 & Lon>20, "5.NGS",
+   ifelse(Lon>22 & Lon<24, "6.WGF",
+   ifelse(Lon>24 & Lon<24.5, "7.HGF", "NaN"))))))))
+
+temp <-temp[complete.cases(temp[,pCO2]),]
+
+
+temp.mean <- temp[,.(
+  date = mean(date),
+  mean.Sal = mean(Sal, na.rm = TRUE),
+  SD.Sal = sd(Sal, na.rm = TRUE),
+  mean.Tem = mean(Tem, na.rm = TRUE),
+  SD.Tem = sd(Tem, na.rm = TRUE),
+  mean.pCO2 = mean(pCO2, na.rm = TRUE),
+  SD.pCO2 = sd(pCO2, na.rm = TRUE),
+  max.pCO2 = max(pCO2),
+  min.pCO2 = min(pCO2),
+  mean.cO2 = mean(cO2, na.rm = TRUE),
+  SD.cO2 = sd(cO2, na.rm = TRUE),
+  mean.patm = mean(patm, na.rm = TRUE),
+  nr=.N),
+  by=.(Area, ID)] [Area != "NaN"]
+
+
+df.all <- rbind(df.all, temp)
+#df.2007 <- temp
+mean.all <- rbind(mean.all, temp.mean)
+#mean.2007 <- temp.mean
+
+
+# setwd("C:/Mueller_Jens_Data/181023_Spring_Summer_2018/data/Summarized_datasets")
+# write.csv(df.2007, "df2007.csv")
+# write.csv(mean.2007, "mean2007.csv")
+
+
+rm(df, temp.mean, temp, files, file, df.2007, mean.2007)
+
+
+
+
+#### 2008
+
+setwd("C:/Mueller_Jens_Data/181023_Spring_Summer_2018/data/pCO2-2008")
+files <- list.files(pattern = "[.]xls$")
+#file <- files[2]
+
+for (file in files){
+  
+  df <- data.table(
+    read_excel(file))
+  names(df) <- c("date","Lon","Lat","pCO2","Sal","Tem", "dTem")
+  df <- df[-c(1,2),]
+  df$Lon <- as.numeric(as.character(df$Lon))
+  df$Lat <- as.numeric(as.character(df$Lat))
+  df$pCO2 <- as.numeric(as.character(df$pCO2))
+  df$Sal <- as.numeric(as.character(df$Sal))
+  df$Tem <- as.numeric(as.character(df$Tem))
+  df$dTem <- as.numeric(as.character(df$dTem))
+  df$cO2 <- as.numeric(NA)
+  df$patm <-as.numeric(NA)
+  df$Teq <- df$Tem + df$dTem
+  df$dTem <- NULL
+  df$xCO2 <- as.numeric(NA)
+  
+  df$route <- strapplyc(as.character(file), ".*(.).xls*", simplify = TRUE)
+  df$ID <- substr(as.character(file), 3, 10)
+  
+  if (exists("temp")){
+    temp <- rbind (temp, df)
+  } else{temp <- df}
+  
+}
+
+
+temp$Area <- with(temp,
+   ifelse(Lon>12 & Lon<12.6, "1.MEB",
+   ifelse(Lon>13.1 & Lon<14.3, "2.ARK",
+   ifelse(Lat>57.5 & Lat<58.5 & route %in% c("E", "G"), "4.EGS",
+   ifelse(Lat>56.8 & Lat<57.5 & route=="W", "3.WGS",
+   ifelse(Lat>58.5 & Lat<59 & Lon>20, "5.NGS",
+   ifelse(Lon>22 & Lon<24, "6.WGF",
+   ifelse(Lon>24 & Lon<24.5, "7.HGF", "NaN"))))))))
+
+temp <-temp[complete.cases(temp[,pCO2]),]
+
+
+temp.mean <- temp[,.(
+  date = mean(date),
+  mean.Sal = mean(Sal, na.rm = TRUE),
+  SD.Sal = sd(Sal, na.rm = TRUE),
+  mean.Tem = mean(Tem, na.rm = TRUE),
+  SD.Tem = sd(Tem, na.rm = TRUE),
+  mean.pCO2 = mean(pCO2, na.rm = TRUE),
+  SD.pCO2 = sd(pCO2, na.rm = TRUE),
+  max.pCO2 = max(pCO2),
+  min.pCO2 = min(pCO2),
+  mean.cO2 = mean(cO2, na.rm = TRUE),
+  SD.cO2 = sd(cO2, na.rm = TRUE),
+  mean.patm = mean(patm, na.rm = TRUE),
+  nr=.N),
+  by=.(Area, ID)] [Area != "NaN"]
+
+
+df.all <- rbind(df.all, temp)
+#df.2008 <- temp
+mean.all <- rbind(mean.all, temp.mean)
+#mean.2008 <- temp.mean
+
+
+# setwd("C:/Mueller_Jens_Data/181023_Spring_Summer_2018/data/Summarized_datasets")
+# write.csv(df.2008, "df2008.csv")
+# write.csv(mean.2008, "mean2008.csv")
+
+
+rm(df, temp.mean, temp, files, file, df.2008, mean.2008)
+
+
+
+
+#### 2009a
+
+setwd("C:/Mueller_Jens_Data/181023_Spring_Summer_2018/data/pCO2-2009a")
+files <- list.files(pattern = "[.]xls$")
+#file <- files[2]
+
+for (file in files){
+  
+  df <- read_excel(file)
+  df <- df[c(1,2,3,11,6,4,10,7,5,14)]
+  names(df) <- c("date","Lon","Lat","pCO2","Sal","Tem","cO2","patm", "Teq","xCO2")
+  df <- df[-c(1,2),]
+  df$date <- as.POSIXct(as.numeric(df$date)*60*60*24, origin="1899-12-30", tz="GMT")
+  df$Lon <- as.numeric(as.character(df$Lon))
+  df$Lat <- as.numeric(as.character(df$Lat))
+  df$pCO2 <- as.numeric(as.character(df$pCO2))
+  df$Sal <- as.numeric(as.character(df$Sal))
+  df$Tem <- as.numeric(as.character(df$Tem))
+  df$cO2 <- as.numeric(NA)
+  df$patm <- as.numeric(as.character(df$patm))
+  df$Teq <- as.numeric(as.character(df$Teq))
+  df$xCO2 <- as.numeric(as.character(df$xCO2))
+  df <- data.table(df)
+  
+  df$route <- strapplyc(as.character(file), ".*(.).xls*", simplify = TRUE)
+  df$ID <- substr(as.character(file), 3, 10)
+  
+  if (exists("temp")){
+    temp <- rbind (temp, df)
+  } else{temp <- df}
+  
+}
+
+
+temp$Area <- with(temp,
+   ifelse(Lon>12 & Lon<12.6, "1.MEB",
+   ifelse(Lon>13.1 & Lon<14.3, "2.ARK",
+   ifelse(Lat>57.5 & Lat<58.5 & route %in% c("E", "G"), "4.EGS",
+   ifelse(Lat>56.8 & Lat<57.5 & route=="W", "3.WGS",
+   ifelse(Lat>58.5 & Lat<59 & Lon>20, "5.NGS",
+   ifelse(Lon>22 & Lon<24, "6.WGF",
+   ifelse(Lon>24 & Lon<24.5, "7.HGF", "NaN"))))))))
+
+temp <-temp[complete.cases(temp[,pCO2]),]
+
+
+temp.mean <- temp[,.(
+  date = mean(date),
+  mean.Sal = mean(Sal, na.rm = TRUE),
+  SD.Sal = sd(Sal, na.rm = TRUE),
+  mean.Tem = mean(Tem, na.rm = TRUE),
+  SD.Tem = sd(Tem, na.rm = TRUE),
+  mean.pCO2 = mean(pCO2, na.rm = TRUE),
+  SD.pCO2 = sd(pCO2, na.rm = TRUE),
+  max.pCO2 = max(pCO2),
+  min.pCO2 = min(pCO2),
+  mean.cO2 = mean(cO2, na.rm = TRUE),
+  SD.cO2 = sd(cO2, na.rm = TRUE),
+  mean.patm = mean(patm, na.rm = TRUE),
+  nr=.N),
+  by=.(Area, ID)] [Area != "NaN"]
+
+
+df.all <- rbind(df.all, temp)
+df.2009a <- temp
+mean.all <- rbind(mean.all, temp.mean)
+mean.2009a <- temp.mean
+
+
+# setwd("C:/Mueller_Jens_Data/181023_Spring_Summer_2018/data/Summarized_datasets")
+# write.csv(df.2009a, "df2009a.csv")
+# write.csv(mean.2009a, "mean2009a.csv")
+
+
+rm(df, temp.mean, temp, files, file)
+
+
+
+
+#### 2009b
+
+setwd("C:/Mueller_Jens_Data/181023_Spring_Summer_2018/data/pCO2-2009b")
+files <- list.files(pattern = "[.]xls$")
+#file <- files[20]
+
+for (file in files){
+  
+  df <- read_excel(file)
+  df <- df[c(1,2,3,11,7,4,14,8,5,16)]
+  names(df) <- c("date","Lon","Lat","pCO2","Sal","Tem","cO2","patm", "Teq","xCO2")
+  df <- df[-c(1),]
+  df$date <- as.POSIXct(as.numeric(df$date)*60*60*24, origin="1899-12-30", tz="GMT")
+  df$Lon <- as.numeric(as.character(df$Lon))
+  df$Lat <- as.numeric(as.character(df$Lat))
+  df$pCO2 <- as.numeric(as.character(df$pCO2))
+  df$Sal <- as.numeric(as.character(df$Sal))
+  df$Tem <- as.numeric(as.character(df$Tem))
+  df$cO2 <- as.numeric(NA)
+  df$patm <- as.numeric(as.character(df$patm))
+  df$Teq <- as.numeric(as.character(df$Teq))
+  df$xCO2 <- as.numeric(as.character(df$xCO2))
+  df <- data.table(df)
+  
+  df$route <- strapplyc(as.character(file), ".*(.).xls*", simplify = TRUE)
+  df$ID <- substr(as.character(file), 3, 10)
+  
+  if (exists("temp")){
+    temp <- rbind (temp, df)
+  } else{temp <- df}
+  
+}
+
+
+temp$Area <- with(temp,
+   ifelse(Lon>12 & Lon<12.6, "1.MEB",
+   ifelse(Lon>13.1 & Lon<14.3, "2.ARK",
+   ifelse(Lat>57.5 & Lat<58.5 & route %in% c("E", "G"), "4.EGS",
+   ifelse(Lat>56.8 & Lat<57.5 & route=="W", "3.WGS",
+   ifelse(Lat>58.5 & Lat<59 & Lon>20, "5.NGS",
+   ifelse(Lon>22 & Lon<24, "6.WGF",
+   ifelse(Lon>24 & Lon<24.5, "7.HGF", "NaN"))))))))
+
+temp <-temp[complete.cases(temp[,pCO2]),]
+
+
+temp.mean <- temp[,.(
+  date = mean(date),
+  mean.Sal = mean(Sal, na.rm = TRUE),
+  SD.Sal = sd(Sal, na.rm = TRUE),
+  mean.Tem = mean(Tem, na.rm = TRUE),
+  SD.Tem = sd(Tem, na.rm = TRUE),
+  mean.pCO2 = mean(pCO2, na.rm = TRUE),
+  SD.pCO2 = sd(pCO2, na.rm = TRUE),
+  max.pCO2 = max(pCO2),
+  min.pCO2 = min(pCO2),
+  mean.cO2 = mean(cO2, na.rm = TRUE),
+  SD.cO2 = sd(cO2, na.rm = TRUE),
+  mean.patm = mean(patm, na.rm = TRUE),
+  nr=.N),
+  by=.(Area, ID)] [Area != "NaN"]
+
+
+df.all <- rbind(df.all, temp)
+df.2009 <- rbind(df.2009a, temp)
+mean.all <- rbind(mean.all, temp.mean)
+mean.2009 <- rbind(mean.2009a, temp.mean)
+
+
+setwd("C:/Mueller_Jens_Data/181023_Spring_Summer_2018/data/Summarized_datasets")
+write.csv(df.2009, "df2009.csv")
+write.csv(mean.2009, "mean2009.csv")
+
+
+rm(df, temp.mean, temp, files, file, df.2009a, mean.2009a, df.2009, mean.2009)
+
+
+
+
+#### 2010
+
+setwd("C:/Mueller_Jens_Data/181023_Spring_Summer_2018/data/pCO2-2010")
+files <- list.files(pattern = "[.]xls$")
+#file <- files[2]
+
+for (file in files){
+  
+  df <- read_excel(file)
+  df <- df[c(1,2,3,12,7,4,15,8,5,17)]
+  names(df) <- c("date","Lon","Lat","pCO2","Sal","Tem","cO2","patm", "Teq","xCO2")
+  df <- df[-c(1),]
+  df$date <- as.POSIXct(as.numeric(df$date)*60*60*24, origin="1899-12-30", tz="GMT")
+  df$Lon <- as.numeric(as.character(df$Lon))
+  df$Lat <- as.numeric(as.character(df$Lat))
+  df$pCO2 <- as.numeric(as.character(df$pCO2))
+  df$Sal <- as.numeric(as.character(df$Sal))
+  df$Tem <- as.numeric(as.character(df$Tem))
+  df$cO2 <- as.numeric(NA)
+  df$patm <- as.numeric(as.character(df$patm))
+  df$Teq <- as.numeric(as.character(df$Teq))
+  df$xCO2 <- as.numeric(as.character(df$xCO2))
+  df <- data.table(df)
+  
+  df$route <- strapplyc(as.character(file), ".*(.).xls*", simplify = TRUE)
+  df$ID <- substr(as.character(file), 3, 10)
+  
+  if (exists("temp")){
+    temp <- rbind (temp, df)
+  } else{temp <- df}
+  
+}
+
+
+temp$Area <- with(temp,
+   ifelse(Lon>12 & Lon<12.6, "1.MEB",
+   ifelse(Lon>13.1 & Lon<14.3, "2.ARK",
+   ifelse(Lat>57.5 & Lat<58.5 & route %in% c("E", "G"), "4.EGS",
+   ifelse(Lat>56.8 & Lat<57.5 & route=="W", "3.WGS",
+   ifelse(Lat>58.5 & Lat<59 & Lon>20, "5.NGS",
+   ifelse(Lon>22 & Lon<24, "6.WGF",
+   ifelse(Lon>24 & Lon<24.5, "7.HGF", "NaN"))))))))
+
+temp <-temp[complete.cases(temp[,pCO2]),]
+
+
+temp.mean <- temp[,.(
+  date = mean(date),
+  mean.Sal = mean(Sal, na.rm = TRUE),
+  SD.Sal = sd(Sal, na.rm = TRUE),
+  mean.Tem = mean(Tem, na.rm = TRUE),
+  SD.Tem = sd(Tem, na.rm = TRUE),
+  mean.pCO2 = mean(pCO2, na.rm = TRUE),
+  SD.pCO2 = sd(pCO2, na.rm = TRUE),
+  max.pCO2 = max(pCO2),
+  min.pCO2 = min(pCO2),
+  mean.cO2 = mean(cO2, na.rm = TRUE),
+  SD.cO2 = sd(cO2, na.rm = TRUE),
+  mean.patm = mean(patm, na.rm = TRUE),
+  nr=.N),
+  by=.(Area, ID)] [Area != "NaN"]
+
+
+df.all <- rbind(df.all, temp)
+#df.2010 <- temp
+mean.all <- rbind(mean.all, temp.mean)
+#mean.2010 <- temp.mean
+
+
+# setwd("C:/Mueller_Jens_Data/181023_Spring_Summer_2018/data/Summarized_datasets")
+# write.csv(df.2010, "df2010.csv")
+# write.csv(mean.2010, "mean2010.csv")
+
+
+rm(df, temp.mean, temp, files, file, df.2010, mean.2010)
+
+
+
+
+
+
+
+#### 2011
+
+setwd("C:/Mueller_Jens_Data/181023_Spring_Summer_2018/data/pCO2-2011")
+files <- list.files(pattern = "[.]xls$")
+#file <- files[2]
+
+for (file in files){
+  
+  df <- read_excel(file)
+  df <- df[c(1,2,3,12,7,4,15,8,5,17)]
+  names(df) <- c("date","Lon","Lat","pCO2","Sal","Tem","cO2","patm", "Teq","xCO2")
+  df <- df[-c(1),]
+  df$date <- as.POSIXct(as.numeric(df$date)*60*60*24, origin="1899-12-30", tz="GMT")
+  df$Lon <- as.numeric(as.character(df$Lon))
+  df$Lat <- as.numeric(as.character(df$Lat))
+  df$pCO2 <- as.numeric(as.character(df$pCO2))
+  df$Sal <- as.numeric(as.character(df$Sal))
+  df$Tem <- as.numeric(as.character(df$Tem))
+  df$cO2 <- as.numeric(NA)
+  df$patm <- as.numeric(as.character(df$patm))
+  df$Teq <- as.numeric(as.character(df$Teq))
+  df$xCO2 <- as.numeric(as.character(df$xCO2))
+  df <- data.table(df)
+  
+  df$route <- strapplyc(as.character(file), ".*(.).xls*", simplify = TRUE)
+  df$ID <- substr(as.character(file), 3, 10)
+  
+  if (exists("temp")){
+    temp <- rbind (temp, df)
+  } else{temp <- df}
+  
+}
+
+
+temp$Area <- with(temp,
+   ifelse(Lon>12 & Lon<12.6, "1.MEB",
+   ifelse(Lon>13.1 & Lon<14.3, "2.ARK",
+   ifelse(Lat>57.5 & Lat<58.5 & route %in% c("E", "G"), "4.EGS",
+   ifelse(Lat>56.8 & Lat<57.5 & route=="W", "3.WGS",
+   ifelse(Lat>58.5 & Lat<59 & Lon>20, "5.NGS",
+   ifelse(Lon>22 & Lon<24, "6.WGF",
+   ifelse(Lon>24 & Lon<24.5, "7.HGF", "NaN"))))))))
+
+temp <-temp[complete.cases(temp[,pCO2]),]
+
+
+temp.mean <- temp[,.(
+  date = mean(date),
+  mean.Sal = mean(Sal, na.rm = TRUE),
+  SD.Sal = sd(Sal, na.rm = TRUE),
+  mean.Tem = mean(Tem, na.rm = TRUE),
+  SD.Tem = sd(Tem, na.rm = TRUE),
+  mean.pCO2 = mean(pCO2, na.rm = TRUE),
+  SD.pCO2 = sd(pCO2, na.rm = TRUE),
+  max.pCO2 = max(pCO2),
+  min.pCO2 = min(pCO2),
+  mean.cO2 = mean(cO2, na.rm = TRUE),
+  SD.cO2 = sd(cO2, na.rm = TRUE),
+  mean.patm = mean(patm, na.rm = TRUE),
+  nr=.N),
+  by=.(Area, ID)] [Area != "NaN"]
+
+
+df.all <- rbind(df.all, temp)
+#df.2011 <- temp
+mean.all <- rbind(mean.all, temp.mean)
+#mean.2011 <- temp.mean
+
+
+# setwd("C:/Mueller_Jens_Data/181023_Spring_Summer_2018/data/Summarized_datasets")
+# write.csv(df.2011, "df2011.csv")
+# write.csv(mean.2011, "mean2011.csv")
+
+
+rm(df, temp.mean, temp, files, file, df.2011, mean.2011)
+
+
+
+
+
+#### 2012
+
+setwd("C:/Mueller_Jens_Data/181023_Spring_Summer_2018/data/pCO2-O2-2012")
+files <- list.files(pattern = "[.]xls$")
+#file <- files[1]
+
+for (file in files){
+  
+  
+  df <- read_excel(file)
+  df <- df[c(1,2,3,12,7,4,15,8,5,17)]
+  names(df) <- c("date","Lon","Lat","pCO2","Sal","Tem","cO2","patm", "Teq","xCO2")
+  df <- df[-c(1),]
+  df$date <- as.POSIXct(as.numeric(df$date)*60*60*24, origin="1899-12-30", tz="GMT")
+  df$Lon <- as.numeric(as.character(df$Lon))
+  df$Lat <- as.numeric(as.character(df$Lat))
+  df$pCO2 <- as.numeric(as.character(df$pCO2))
+  df$Sal <- as.numeric(as.character(df$Sal))
+  df$Tem <- as.numeric(as.character(df$Tem))
+  df$cO2 <- as.numeric(as.character(df$cO2))
+  df$patm <- as.numeric(as.character(df$patm))
+  df$Teq <- as.numeric(as.character(df$Teq))
+  df$xCO2 <- as.numeric(as.character(df$xCO2))
+  df <- data.table(df)
+  
+  df$route <- strapplyc(as.character(file), ".*(.).xls*", simplify = TRUE)
+  df$ID <- substr(as.character(file), 3, 10)
+  
+  if (exists("temp")){
+    temp <- rbind (temp, df)
+  } else{temp <- df}
+  
+}
+
+temp$Area <- with(temp,
+  ifelse(Lon>12 & Lon<12.6, "1.MEB",
+  ifelse(Lon>13.1 & Lon<14.3, "2.ARK",
+  ifelse(Lat>57.5 & Lat<58.5 & route %in% c("E", "G"), "4.EGS",
+  ifelse(Lat>56.8 & Lat<57.5 & route=="W", "3.WGS",
+  ifelse(Lat>58.5 & Lat<59 & Lon>20, "5.NGS",
+  ifelse(Lon>22 & Lon<24, "6.WGF",
+  ifelse(Lon>24 & Lon<24.5, "7.HGF", "NaN"))))))))
+
+temp <-temp[complete.cases(temp[,pCO2]),]
+
+temp.mean <- temp[,.(
+  date = mean(date),
+  mean.Sal = mean(Sal, na.rm = TRUE),
+  SD.Sal = sd(Sal, na.rm = TRUE),
+  mean.Tem = mean(Tem, na.rm = TRUE),
+  SD.Tem = sd(Tem, na.rm = TRUE),
+  mean.pCO2 = mean(pCO2, na.rm = TRUE),
+  SD.pCO2 = sd(pCO2, na.rm = TRUE),
+  max.pCO2 = max(pCO2),
+  min.pCO2 = min(pCO2),
+  mean.cO2 = mean(cO2, na.rm = TRUE),
+  SD.cO2 = sd(cO2, na.rm = TRUE),
+  mean.patm = mean(patm, na.rm = TRUE),
+  nr=.N),
+  by=.(Area, ID)] [Area != "NaN"]
+
+
+
+df.all <- rbind(df.all, temp)
+#df.2012 <- temp
+mean.all <- rbind(mean.all, temp.mean)
+#mean.2012 <- temp.mean
+
+
+# setwd("C:/Mueller_Jens_Data/181023_Spring_Summer_2018/data/Summarized_datasets")
+# write.csv(df.2012, "df2012.csv")
+# write.csv(mean.2012, "mean2012.csv")
+
+
+rm(df, temp.mean, temp, files, file, df.2012, mean.2012)
+
+
+
+
+#### 2013
+
+setwd("C:/Mueller_Jens_Data/181023_Spring_Summer_2018/data/pCO2-O2-2013")
+files <- list.files(pattern = "[.]xls$")
+#file <- files[1]
+
+for (file in files){
+  
+  
+  df <- read_excel(file)
+  df <- df[c(1,2,3,12,7,4,15,8,5,17)]
+  names(df) <- c("date","Lon","Lat","pCO2","Sal","Tem","cO2","patm", "Teq","xCO2")
+  df <- df[-c(1),]
+  df$date <- as.POSIXct(as.numeric(df$date)*60*60*24, origin="1899-12-30", tz="GMT")
+  df$Lon <- as.numeric(as.character(df$Lon))
+  df$Lat <- as.numeric(as.character(df$Lat))
+  df$pCO2 <- as.numeric(as.character(df$pCO2))
+  df$Sal <- as.numeric(as.character(df$Sal))
+  df$Tem <- as.numeric(as.character(df$Tem))
+  df$cO2 <- as.numeric(as.character(df$cO2))
+  df$patm <- as.numeric(as.character(df$patm))
+  df$Teq <- as.numeric(as.character(df$Teq))
+  df$xCO2 <- as.numeric(as.character(df$xCO2))
+  df <- data.table(df)
+  
+  df$route <- strapplyc(as.character(file), ".*(.).xls*", simplify = TRUE)
+  df$ID <- substr(as.character(file), 3, 10)
+  
+  if (exists("temp")){
+    temp <- rbind (temp, df)
+  } else{temp <- df}
+  
+}
+
+
+temp$Area <- with(temp,
+  ifelse(Lon>12 & Lon<12.6, "1.MEB",
+  ifelse(Lon>13.1 & Lon<14.3, "2.ARK",
+  ifelse(Lat>57.5 & Lat<58.5 & route %in% c("E", "G"), "4.EGS",
+  ifelse(Lat>56.8 & Lat<57.5 & route=="W", "3.WGS",
+  ifelse(Lat>58.5 & Lat<59 & Lon>20, "5.NGS",
+  ifelse(Lon>22 & Lon<24, "6.WGF",
+  ifelse(Lon>24 & Lon<24.5, "7.HGF", "NaN"))))))))
+
+temp <-temp[complete.cases(temp[,pCO2]),]
+
+temp.mean <- temp[,.(
+  date = mean(date),
+  mean.Sal = mean(Sal, na.rm = TRUE),
+  SD.Sal = sd(Sal, na.rm = TRUE),
+  mean.Tem = mean(Tem, na.rm = TRUE),
+  SD.Tem = sd(Tem, na.rm = TRUE),
+  mean.pCO2 = mean(pCO2, na.rm = TRUE),
+  SD.pCO2 = sd(pCO2, na.rm = TRUE),
+  max.pCO2 = max(pCO2),
+  min.pCO2 = min(pCO2),
+  mean.cO2 = mean(cO2, na.rm = TRUE),
+  SD.cO2 = sd(cO2, na.rm = TRUE),
+  mean.patm = mean(patm, na.rm = TRUE),
+  nr=.N),
+  by=.(Area, ID)] [Area != "NaN"]
+
+
+
+df.all <- rbind(df.all, temp)
+#df.2013 <- temp
+mean.all <- rbind(mean.all, temp.mean)
+#mean.2013 <- temp.mean
+
+
+# setwd("C:/Mueller_Jens_Data/181023_Spring_Summer_2018/data/Summarized_datasets")
+# write.csv(df.2013, "df2013.csv")
+# write.csv(mean.2013, "mean2013.csv")
+
+
+rm(df, temp.mean, temp, files, file, df.2013, mean.2013)
+
+
+
+#### 2014
+
+setwd("C:/Mueller_Jens_Data/181023_Spring_Summer_2018/data/pCO2-O2-2014")
+files <- list.files(pattern = "[.]xls$")
+#file <- files[1]
+
+for (file in files){
+  
+  
+  df <- read_excel(file)
+  df <- df[c(1,2,3,12,7,4,15,8,5,17)]
+  names(df) <- c("date","Lon","Lat","pCO2","Sal","Tem","cO2","patm", "Teq","xCO2")
+  df <- df[-c(1),]
+  df$date <- as.POSIXct(as.numeric(df$date)*60*60*24, origin="1899-12-30", tz="GMT")
+  df$Lon <- as.numeric(as.character(df$Lon))
+  df$Lat <- as.numeric(as.character(df$Lat))
+  df$pCO2 <- as.numeric(as.character(df$pCO2))
+  df$Sal <- as.numeric(as.character(df$Sal))
+  df$Tem <- as.numeric(as.character(df$Tem))
+  df$cO2 <- as.numeric(as.character(df$cO2))
+  df$patm <- as.numeric(as.character(df$patm))
+  df$Teq <- as.numeric(as.character(df$Teq))
+  df$xCO2 <- as.numeric(as.character(df$xCO2))
+  df <- data.table(df)
+  
+  df$route <- strapplyc(as.character(file), ".*(.).xls*", simplify = TRUE)
+  df$ID <- substr(as.character(file), 3, 10)
+  
+  if (exists("temp")){
+    temp <- rbind (temp, df)
+  } else{temp <- df}
+  
+}
+
+temp$Area <- with(temp,
+  ifelse(Lon>12 & Lon<12.6, "1.MEB",
+  ifelse(Lon>13.1 & Lon<14.3, "2.ARK",
+  ifelse(Lat>57.5 & Lat<58.5 & route %in% c("E", "G"), "4.EGS",
+  ifelse(Lat>56.8 & Lat<57.5 & route=="W", "3.WGS",
+  ifelse(Lat>58.5 & Lat<59 & Lon>20, "5.NGS",
+  ifelse(Lon>22 & Lon<24, "6.WGF",
+  ifelse(Lon>24 & Lon<24.5, "7.HGF", "NaN"))))))))
+
+temp <-temp[complete.cases(temp[,pCO2]),]
+
+temp.mean <- temp[,.(
+  date = mean(date),
+  mean.Sal = mean(Sal, na.rm = TRUE),
+  SD.Sal = sd(Sal, na.rm = TRUE),
+  mean.Tem = mean(Tem, na.rm = TRUE),
+  SD.Tem = sd(Tem, na.rm = TRUE),
+  mean.pCO2 = mean(pCO2, na.rm = TRUE),
+  SD.pCO2 = sd(pCO2, na.rm = TRUE),
+  max.pCO2 = max(pCO2),
+  min.pCO2 = min(pCO2),
+  mean.cO2 = mean(cO2, na.rm = TRUE),
+  SD.cO2 = sd(cO2, na.rm = TRUE),
+  mean.patm = mean(patm, na.rm = TRUE),
+  nr=.N),
+  by=.(Area, ID)] [Area != "NaN"]
+
+
+
+df.all <- rbind(df.all, temp)
+#df.2014 <- temp
+mean.all <- rbind(mean.all, temp.mean)
+#mean.2014 <- temp.mean
+
+
+# setwd("C:/Mueller_Jens_Data/181023_Spring_Summer_2018/data/Summarized_datasets")
+# write.csv(df.2014, "df2014.csv")
+# write.csv(mean.2014, "mean2014.csv")
+
+
+rm(df, temp.mean, temp, files, file, df.2014, mean.2014)
+
+
+
+
+#### 2015
+
+setwd("C:/Mueller_Jens_Data/181023_Spring_Summer_2018/data/pCO2-O2-2015")
+files <- list.files(pattern = "[.]xls$")
+#file <- files[1]
+
+for (file in files){
+  
+  
+  df <- read_excel(file)
+  df <- df[c(1,2,3,12,7,4,15,8,5,17)]
+  names(df) <- c("date","Lon","Lat","pCO2","Sal","Tem","cO2","patm", "Teq","xCO2")
+  df <- df[-c(1),]
+  df$date <- as.POSIXct(as.numeric(df$date)*60*60*24, origin="1899-12-30", tz="GMT")
+  df$Lon <- as.numeric(as.character(df$Lon))
+  df$Lat <- as.numeric(as.character(df$Lat))
+  df$pCO2 <- as.numeric(as.character(df$pCO2))
+  df$Sal <- as.numeric(as.character(df$Sal))
+  df$Tem <- as.numeric(as.character(df$Tem))
+  df$cO2 <- as.numeric(as.character(df$cO2))
+  df$patm <- as.numeric(as.character(df$patm))
+  df$Teq <- as.numeric(as.character(df$Teq))
+  df$xCO2 <- as.numeric(as.character(df$xCO2))
+  df <- data.table(df)
+
+  df$route <- strapplyc(as.character(file), ".*(.).xls*", simplify = TRUE)
+  df$ID <- substr(as.character(file), 3, 10)
+
+  if (exists("temp")){
+    temp <- rbind (temp, df)
+  } else{temp <- df}
+  
+}
+
+temp$Area <- with(temp,
+  ifelse(Lon>12 & Lon<12.6, "1.MEB",
+  ifelse(Lon>13.1 & Lon<14.3, "2.ARK",
+  ifelse(Lat>57.5 & Lat<58.5 & route %in% c("E", "G"), "4.EGS",
+  ifelse(Lat>56.8 & Lat<57.5 & route=="W", "3.WGS",
+  ifelse(Lat>58.5 & Lat<59 & Lon>20, "5.NGS",
+  ifelse(Lon>22 & Lon<24, "6.WGF",
+  ifelse(Lon>24 & Lon<24.5, "7.HGF", "NaN"))))))))
+
+temp <-temp[complete.cases(temp[,pCO2]),]
+
+temp.mean <- temp[,.(
+  date = mean(date),
+  mean.Sal = mean(Sal, na.rm = TRUE),
+  SD.Sal = sd(Sal, na.rm = TRUE),
+  mean.Tem = mean(Tem, na.rm = TRUE),
+  SD.Tem = sd(Tem, na.rm = TRUE),
+  mean.pCO2 = mean(pCO2, na.rm = TRUE),
+  SD.pCO2 = sd(pCO2, na.rm = TRUE),
+  max.pCO2 = max(pCO2),
+  min.pCO2 = min(pCO2),
+  mean.cO2 = mean(cO2, na.rm = TRUE),
+  SD.cO2 = sd(cO2, na.rm = TRUE),
+  mean.patm = mean(patm, na.rm = TRUE),
+  nr=.N),
+  by=.(Area, ID)] [Area != "NaN"]
+
+
+
+df.all <- rbind(df.all, temp)
+#df.2015 <- temp
+mean.all <- rbind(mean.all, temp.mean)
+#mean.2015 <- temp.mean
+
+
+# setwd("C:/Mueller_Jens_Data/181023_Spring_Summer_2018/data/Summarized_datasets")
+# write.csv(df.2015, "df2015.csv")
+# write.csv(mean.2015, "mean2015.csv")
+
+
+rm(df, temp.mean, temp, files, file, df.2015, mean.2015)
+
+
+
+
+#   all data
+
+mean.all$year <- year(mean.all$date)
+
+
+setwd("C:/Mueller_Jens_Data/181023_Spring_Summer_2018/data/Summarized_datasets")
+write.csv(df.all, "dfall.csv")
+write.csv(mean.all, "meanall.csv")
