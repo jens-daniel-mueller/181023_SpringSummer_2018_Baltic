@@ -1,51 +1,33 @@
 library(data.table)
 library(seacarb)
 library(ggplot2)
-library(dygraphs)
-library(xts)
 library(lubridate)
-library(marelac)
-
-
+# library(dygraphs)
+# library(xts)
+# library(marelac)
 
 
 setwd("C:/Mueller_Jens_Data/181023_Spring_Summer_2018/data/Finnmaid/Summarized_datasets")
 
-df <- data.table(read.csv("dfall.csv"))
-df$X <- NULL
+df.area <- data.table(read.csv("df_mean_area.csv"))
+df.area$date <- ymd_hms(df.area$date)
 
-
-df$date <- ymd_hms(df$date)
-
-
-
-
-
-
-
-
-
-
-
-df <- data.table(read.csv("meanall_incl_2016.csv"))
-df$X <- NULL
-
-
-df$date <- as.POSIXct(strptime(df$date, format="%Y-%m-%d %H:%M:%S", tz="GMT"))
+df.dist <- data.table(read.csv("df_mean_distanceHEL.csv"))
+df.dist$date <- ymd_hms(df.dist$date)
 
 
 #### CT calculation
 
-df$Sal.fix <- as.numeric(
-  with(df,
+df.area$Sal.fix <- as.numeric(
+  with(df.area,
   ifelse(Area == "1.MEB", 9.6,
   ifelse(Area == "2.ARK", 7.6,
   ifelse(Area %in% c("4.EGS", "3.WGS", "5.NGS"), 6.7,
   ifelse(Area == "6.WGF", 6.2,
   ifelse(Area == "7.HGF", 5.7, "NaN")))))))
 
-df$AT.fix <- as.numeric(
-  with(df,
+df.area$AT.fix <- as.numeric(
+  with(df.area,
   ifelse(Area == "1.MEB", 1741e-6,
   ifelse(Area == "2.ARK", 1694e-6,
   ifelse(Area %in% c("4.EGS", "3.WGS", "5.NGS"), 1665e-6,
@@ -53,23 +35,22 @@ df$AT.fix <- as.numeric(
   ifelse(Area == "7.HGF", 1513e-6, "NaN")))))))
 
 
-df$mean.CT <- as.numeric(NA)
-df[!is.na(mean.Tem)]$mean.CT <- 1e6*with(df[!is.na(mean.Tem)], carb(flag=24, var1=mean.pCO2, var2=AT.fix, S=Sal.fix, T=mean.Tem, k1k2="m10", kf="dg", pHscale="T"))[,16]
-df$AT.fix <- df$AT.fix*1e6
+df.area$mean.CT <- as.numeric(NA)
+df.area[!is.na(mean.Tem)]$mean.CT <- 1e6*with(df.area[!is.na(mean.Tem)], carb(flag=24, var1=mean.pCO2, var2=AT.fix, S=Sal.fix, T=mean.Tem, k1k2="m10", kf="dg", pHscale="T"))[,16]
+
+df.area$AT.fix <- df.area$AT.fix*1e6
 
 
-df$eq.CT <- as.numeric(NA)
-df[!is.na(mean.Tem)]$eq.CT <- 1e6*with(df[!is.na(mean.Tem)], carb(flag=24, var1=400, var2=AT.fix*1e-6, S=Sal.fix, T=mean.Tem, k1k2="m10", kf="dg", pHscale="T"))[,16]
+df.area$eq.CT <- as.numeric(NA)
+df.area[!is.na(mean.Tem)]$eq.CT <- 1e6*with(df.area[!is.na(mean.Tem)], carb(flag=24, var1=400, var2=AT.fix*1e-6, S=Sal.fix, T=mean.Tem, k1k2="m10", kf="dg", pHscale="T"))[,16]
 
 
 ggplot()+
-  geom_point(data=df, aes(date, mean.cO2))+
+  geom_point(data=df.area, aes(date, mean.cO2))+
   facet_wrap(~Area)
 
-
-
-df[mean.cO2>520]$mean.cO2 <- NA
-df[mean.cO2<100]$mean.cO2 <- NA
+df.area[mean.cO2>520]$mean.cO2 <- NA
+df.area[mean.cO2<200]$mean.cO2 <- NA
 write.csv(df, "meanall_CT_incl_2016.csv", row.names = FALSE)
 
 
