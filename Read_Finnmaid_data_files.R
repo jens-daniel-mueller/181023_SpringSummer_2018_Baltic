@@ -1417,43 +1417,43 @@ write.csv(df.all, "dfall.csv")
 write.csv(mean.all, "meanall.csv")
 
 
-library(viridis)
-setorder(mean.all, year, date)
-
-Fig <-
-ggplot()+
-  geom_hline(yintercept=100)+
-  geom_point(data=mean.all[year != 2018], aes(yday(date), mean.pCO2, col=as.factor(year)))+
-  geom_path(data=mean.all[year != 2018], aes(yday(date), mean.pCO2, col=as.factor(year)))+
-  geom_point(data=mean.all[year == 2018], aes(yday(date), mean.pCO2), col="red")+
-  geom_path(data=mean.all[year == 2018], aes(yday(date), mean.pCO2), col="red")+
-  scale_color_grey(name="year")+
-  facet_wrap(~Area)+
-  coord_cartesian(ylim = c(0,400), xlim = c(60, 240))
-
-
-setwd("C:/Mueller_Jens_Data/181023_Spring_Summer_2018/plots")
-tiff("MeanPCO2_FacetArea_AllYears.tiff", width = 350, height = 250, units = 'mm', res = 600, compression = 'lzw')
-Fig
-dev.off()
-rm(Fig)
-
-
-Fig <-
-ggplot()+
-  geom_hline(yintercept=20)+
-  geom_point(data=mean.all[year != 2018], aes(yday(date), mean.Tem, col=as.factor(year)))+
-  geom_path(data=mean.all[year != 2018], aes(yday(date), mean.Tem, col=as.factor(year)))+
-  geom_point(data=mean.all[year == 2018], aes(yday(date), mean.Tem), col="red")+
-  geom_path(data=mean.all[year == 2018], aes(yday(date), mean.Tem), col="red")+
-  scale_color_grey(name="year")+
-  facet_wrap(~Area)+
-  coord_cartesian(ylim = c(0,26), xlim = c(60, 240))
-
-
-setwd("C:/Mueller_Jens_Data/181023_Spring_Summer_2018/plots")
-tiff("MeanTem_FacetArea_AllYears.tiff", width = 350, height = 250, units = 'mm', res = 600, compression = 'lzw')
-Fig
-dev.off()
-rm(Fig)
-
+# library(viridis)
+# setorder(mean.all, year, date)
+# 
+# Fig <-
+# ggplot()+
+#   geom_hline(yintercept=100)+
+#   geom_point(data=mean.all[year != 2018], aes(yday(date), mean.pCO2, col=as.factor(year)))+
+#   geom_path(data=mean.all[year != 2018], aes(yday(date), mean.pCO2, col=as.factor(year)))+
+#   geom_point(data=mean.all[year == 2018], aes(yday(date), mean.pCO2), col="red")+
+#   geom_path(data=mean.all[year == 2018], aes(yday(date), mean.pCO2), col="red")+
+#   scale_color_grey(name="year")+
+#   facet_wrap(~Area)+
+#   coord_cartesian(ylim = c(0,400), xlim = c(60, 240))
+# 
+# 
+# setwd("C:/Mueller_Jens_Data/181023_Spring_Summer_2018/plots")
+# tiff("MeanPCO2_FacetArea_AllYears.tiff", width = 350, height = 250, units = 'mm', res = 600, compression = 'lzw')
+# Fig
+# dev.off()
+# rm(Fig)
+# 
+# 
+# Fig <-
+# ggplot()+
+#   geom_hline(yintercept=20)+
+#   geom_point(data=mean.all[year != 2018], aes(yday(date), mean.Tem, col=as.factor(year)))+
+#   geom_path(data=mean.all[year != 2018], aes(yday(date), mean.Tem, col=as.factor(year)))+
+#   geom_point(data=mean.all[year == 2018], aes(yday(date), mean.Tem), col="red")+
+#   geom_path(data=mean.all[year == 2018], aes(yday(date), mean.Tem), col="red")+
+#   scale_color_grey(name="year")+
+#   facet_wrap(~Area)+
+#   coord_cartesian(ylim = c(0,26), xlim = c(60, 240))
+# 
+# 
+# setwd("C:/Mueller_Jens_Data/181023_Spring_Summer_2018/plots")
+# tiff("MeanTem_FacetArea_AllYears.tiff", width = 350, height = 250, units = 'mm', res = 600, compression = 'lzw')
+# Fig
+# dev.off()
+# rm(Fig)
+# 
