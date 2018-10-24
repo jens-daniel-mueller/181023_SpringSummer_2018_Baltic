@@ -61,7 +61,7 @@ df$Area <- NULL
 Hel <- c(24.945831, 60.192059)
 
 df$dist.Hel <- distGeo(cbind(df$Lon, df$Lat), Hel)/1e3
-df$dist.Hel.int <- cut(df$dist.Hel, seq(0, 1200, 50))
+df$dist.Hel.int <- cut(df$dist.Hel, seq(0, 1200, 50), labels = seq(25, 1175, 50))
 
 df.dist <- df[,.(
   date = mean(date),
@@ -86,4 +86,4 @@ df.dist$day <- yday(df.dist$date)
 setwd("C:/Mueller_Jens_Data/181023_Spring_Summer_2018/data/Finnmaid/Summarized_datasets")
 write.csv(df.dist, "df_mean_distanceHEL.csv", row.names = FALSE)
 
-rm(df.dist, Hel, df)
+rm(df.dist, Hel)
