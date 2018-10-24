@@ -45,38 +45,18 @@ df.area$eq.CT <- as.numeric(NA)
 df.area[!is.na(mean.Tem)]$eq.CT <- 1e6*with(df.area[!is.na(mean.Tem)], carb(flag=24, var1=400, var2=AT.fix*1e-6, S=Sal.fix, T=mean.Tem, k1k2="m10", kf="dg", pHscale="T"))[,16]
 
 
-ggplot()+
-  geom_point(data=df.area, aes(date, mean.cO2))+
-  facet_wrap(~Area)
-
-df.area[mean.cO2>520]$mean.cO2 <- NA
-df.area[mean.cO2<200]$mean.cO2 <- NA
-write.csv(df, "meanall_CT_incl_2016.csv", row.names = FALSE)
-
-
-df <- data.table(read.csv("meanall_CT.csv"))
-df$date <- as.POSIXct(strptime(df$date, format="%Y-%m-%d %H:%M:%S", tz="GMT"))
-summary(df)
-
-
-
-
-# #### data set for Fig. 4.4 frequency of measurements
-# df <- data.table(read.csv("dfall.csv"))
-# df$date <- as.POSIXct(strptime(df$date, format="%Y-%m-%d %H:%M:%S", tz="GMT"))
-# summary(df)
+# ggplot()+
+#   geom_point(data=df.area[year>2010], aes(date, mean.cO2))+
+#   facet_wrap(~Area)
 # 
-# routes <- df[, .(route = mean(route),
-#        date=mean (date))
-#             , by=(ID)]
-# 
-# write.csv(routes, "routes.csv", row.names = FALSE)
+# df.area[mean.cO2>520]$mean.cO2 <- NA
+# df.area[mean.cO2<200]$mean.cO2 <- NA
 
 
 
+write.csv(df.area, "df_mean_area_CT.csv", row.names = FALSE)
 
 
-length(levels(df$ID))
 
 
 
