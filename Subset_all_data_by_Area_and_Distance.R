@@ -106,6 +106,8 @@ df.end.spring.east <- df[yday(date) > yday(ymd("2018/05/07")) &
   mean.Sal = mean(Sal, na.rm = TRUE),
   SD.Sal = sd(Sal, na.rm = TRUE),
   mean.Tem = mean(Tem, na.rm = TRUE),
+  max.Tem = max(Tem),
+  min.Tem = min(Tem),
   SD.Tem = sd(Tem, na.rm = TRUE),
   mean.pCO2 = mean(pCO2, na.rm = TRUE),
   SD.pCO2 = sd(pCO2, na.rm = TRUE),
