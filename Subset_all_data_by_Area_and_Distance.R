@@ -87,3 +87,38 @@ setwd("C:/Mueller_Jens_Data/181023_Spring_Summer_2018/data/Finnmaid/Summarized_d
 write.csv(df.dist, "df_mean_distanceHEL.csv", row.names = FALSE)
 
 rm(df.dist, Hel)
+
+
+
+
+#### subset data set for pCO2 distribution end spring bloom
+
+Hel <- c(24.945831, 60.192059)
+
+df$dist.Hel <- distGeo(cbind(df$Lon, df$Lat), Hel)/1e3
+df$dist.Hel.int <- cut(df$dist.Hel, seq(0, 1200, 20), labels = seq(10, 1190, 20))
+
+
+df.end.spring.east <- df[yday(date) > yday(ymd("2018/05/07")) &
+                 yday(date) < yday(ymd("2018/05/14")) &
+                 route == "E"][,.(
+  date = mean(date),
+  mean.Sal = mean(Sal, na.rm = TRUE),
+  SD.Sal = sd(Sal, na.rm = TRUE),
+  mean.Tem = mean(Tem, na.rm = TRUE),
+  SD.Tem = sd(Tem, na.rm = TRUE),
+  mean.pCO2 = mean(pCO2, na.rm = TRUE),
+  SD.pCO2 = sd(pCO2, na.rm = TRUE),
+  max.pCO2 = max(pCO2),
+  min.pCO2 = min(pCO2),
+  mean.cO2 = mean(cO2, na.rm = TRUE),
+  SD.cO2 = sd(cO2, na.rm = TRUE),
+  mean.patm = mean(patm, na.rm = TRUE),
+  nr=.N),
+  by=.(dist.Hel.int, year)]
+
+
+setwd("C:/Mueller_Jens_Data/181023_Spring_Summer_2018/data/Finnmaid/Summarized_datasets")
+write.csv(df.end.spring.east, "df_end_spring.csv", row.names = FALSE)
+
+rm(df.end.spring.east, Hel, df)
