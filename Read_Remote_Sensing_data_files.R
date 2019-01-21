@@ -30,7 +30,7 @@ rm(files)
 
 setwd("C:/Mueller_Jens_Data/181023_Spring_Summer_2018/data/Remote_Sensing/Woz_Chl")
 files <- list.files(pattern = "[.]txt$")
-file <- files[1]
+#file <- files[1]
 
 for (file in files){
 
@@ -51,9 +51,9 @@ df <-
 
 matrix.int <-
   df %>% 
-  group_by(lat.int, lon.int) %>% 
-  summarise(chl = mean(value)) %>% 
-  ungroup() %>% 
+  group_by(lat.int, lon.int) %>%
+  summarise(chl = mean(value)) %>%
+  ungroup() %>%
   add_column(year  = substr(file, 9, 12),
              month = substr(file, 13, 14),
              day = substr(file, 15, 16))
@@ -97,6 +97,30 @@ df.month <-
   summarise(chl = mean(chl)) %>%
   mutate(chl.int = cut(chl, c(0,2,4,6,10,12.5,15,20,50))) %>% 
   ungroup()
+
+# df.month <- 
+#   df %>% 
+#   mutate(lat.int = as.numeric(as.character(cut(lat, seq(50.95, 72.05, 0.1), labels = seq(51, 72, 0.1)))),
+#          lon.int = as.numeric(as.character(cut(lon, seq(8.95, 32.05, 0.1), labels = seq(9, 32, 0.1))))) %>% 
+#   group_by(lat.int, lon.int, year, month) %>% 
+#   summarise(chl = mean(value)) %>%
+#   mutate(chl.int = cut(chl, c(0,2,4,6,10,12.5,15,20,50))) %>% 
+#   ungroup()
+#
+#
+# df.month %>% 
+#   filter(year=="2018", month=="08") %>% 
+#   ggplot(aes(lon.int, lat.int, fill=chl.int))+
+#   coord_quickmap(xlim=lon.borders, ylim=lat.borders) +
+#   geom_polygon(data=baltic.coastlines, aes(x=long, y=lat, group=group),
+#                fill=land.colour, colour = border.colour, lwd=.5)+
+#   geom_raster()+
+#   scale_fill_brewer(palette = "Spectral", direction = -1, name="Chl")+
+#   #facet_grid(year~month)+
+#   labs(x="Lon (0.1 deg grid)", y="Lat (0.1 deg grid)")+
+#   theme_bw()
+
+
 
 
 setwd("C:/Mueller_Jens_Data/181023_Spring_Summer_2018/data/Remote_Sensing/Merged_data_sets")
@@ -163,9 +187,9 @@ ggplot(aes(lon.int, lat.int, fill=chl.int))+
   geom_polygon(data=baltic.coastlines, aes(x=long, y=lat, group=group), fill=land.colour, colour = border.colour, lwd=.5)+
   geom_raster()+
   scale_fill_brewer(palette = "Spectral", direction = -1)+
-  facet_grid(week~year)+
+  facet_grid(year~week)+
   theme_bw()
-ggsave("Woz_Chl_2016-18_weekly.pdf", height = 400, width = 100, dpi = 300, units = "mm")
+ggsave("Woz_Chl_2016-18_weekly.pdf", height = 100, width = 700, dpi = 300, units = "mm")
 
 
 
