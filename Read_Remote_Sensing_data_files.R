@@ -1,22 +1,21 @@
-library(ggplot2)
-library(data.table)
 library(lubridate)
 library(tidyverse)
 
 
 ### read coordinate grid data
 
+
 setwd("C:/Mueller_Jens_Data/181023_Spring_Summer_2018/data/Remote_Sensing/grid")
 files <- list.files(pattern = "[.]txt$")
 
-lat <- read.delim(files[1], header = FALSE)
+lat <- read_tsv(files[1], col_names = FALSE)
 lat <-
   lat %>% 
   gather(V1:V1000) %>% 
   select(value) %>% 
   rename(lat = value)
 
-lon <- read.delim(files[2], header = FALSE)
+lon <- read_tsv(files[2], col_names = FALSE)
 lon <-
   lon %>% 
   gather(V1:V1000) %>% 
@@ -27,30 +26,28 @@ rm(files)
 
 
 
-
 ### read chl matrix data and merge with coordinate grid
 
-setwd("C:/Mueller_Jens_Data/181023_Spring_Summer_2018/data/Remote_Sensing/Chl")
+setwd("C:/Mueller_Jens_Data/181023_Spring_Summer_2018/data/Remote_Sensing/Woz_Chl")
 files <- list.files(pattern = "[.]txt$")
-#file <- files[1]
+file <- files[1]
 
 for (file in files){
 
-chl <- read.delim(file, header = FALSE)
+chl <- read_tsv(file, col_names = FALSE)
 chl <-
   chl %>% 
   gather(V1:V1000) %>% 
   select(value)
 
-df <- data.table(
-  cbind(lat, lon, chl))
-
+df <- bind_cols(lat, lon, chl)
 rm(chl)
 
-df <- na.omit(df)
-
-df$lat.int <- as.numeric( as.character (cut(df$lat, seq(50.75, 72.25, 0.5), labels = seq(51, 72, 0.5))))
-df$lon.int <- as.numeric( as.character (cut(df$lon, seq(8.75, 32.25, 0.5), labels = seq(9, 32, 0.5))))
+df <- 
+  df %>% 
+  drop_na() %>% 
+  mutate(lat.int = as.numeric(as.character(cut(lat, seq(50.95, 72.05, 0.1), labels = seq(51, 72, 0.1)))),
+         lon.int = as.numeric(as.character(cut(lon, seq(8.95, 32.05, 0.1), labels = seq(9, 32, 0.1)))))
 
 matrix.int <-
   df %>% 
@@ -68,27 +65,31 @@ if (exists("temp")){
 } else{temp <- matrix.int}
 
 rm(matrix.int)
-
 print(file)
-
 }
 
-rm(file, files)
+rm(file, files, lat, lon)
 
 df <- temp
 rm(temp)
 
 
 
+#### subset and grid data frames ####
 
-#plot results from both data sources
 
+df <- 
+  df %>% 
+  mutate(chl.int = cut(chl, c(0,2,4,6,10,12.5,15,20,50)),
+         date = ymd(paste(year, month, day, sep = "/")),
+         week = week(date))
 
-setwd("C:/Mueller_Jens_Data/181023_Spring_Summer_2018/data/Remote_Sensing/plots")
-
-df <- data.table(df)
-df$chl.int <- cut(df$chl, c(0,2,5,10,15,20,50))
-
+df.weekly <- 
+  df %>% 
+  group_by(lat.int, lon.int, year, week) %>% 
+  summarise(chl = mean(chl)) %>%
+  mutate(chl.int = cut(chl, c(0,2,4,6,10,12.5,15,20,50))) %>% 
+  ungroup()
 
 df.month <- 
   df %>% 
@@ -98,68 +99,78 @@ df.month <-
   ungroup()
 
 
+setwd("C:/Mueller_Jens_Data/181023_Spring_Summer_2018/data/Remote_Sensing/Merged_data_sets")
 
 
-
-ggplot(df[year == "2016"], aes(lon.int, lat.int, fill=chl.int))+
-  geom_raster()+
-  scale_fill_viridis_d()+
-  coord_quickmap()+
-  facet_grid(day~month)
-ggsave("2016_Chl_data.pdf", height = 600, width = 200, dpi = 300, units = "mm")
-
-ggplot(df[year == "2018"], aes(lon.int, lat.int, fill=chl.int))+
-  geom_raster()+
-  scale_fill_viridis_d()+
-  coord_quickmap()+
-  facet_grid(day~month)
-ggsave("2018_Chl_data.pdf", height = 600, width = 200, dpi = 300, units = "mm")
+write.csv(df, "Woz_Chl_2016-18_daily_res01.csv", row.names = FALSE)
+write.csv(df.weekly, "Woz_Chl_2016-18_weekly_res01.csv", row.names = FALSE)
+write.csv( df.month, "Woz_Chl_2016-18_monthly_res01.csv", row.names = FALSE)
 
 
-ggplot(df.month, aes(lon.int, lat.int, fill=chl.int))+
+#### plot results from both data sources ####
+
+setwd("C:/Mueller_Jens_Data/181023_Spring_Summer_2018/data/Remote_Sensing/plots")
+
+
+baltic.coastlines <- map_data('world', xlim = c(4, 29), ylim = c(50, 66))
+land.colour   <- "grey75"
+border.colour <- "grey10"
+lon.borders <- c(10, 31.5)
+lat.borders <- c(53.5, 61)
+  
+df %>% 
+  filter(year==2016) %>% 
+  ggplot(aes(lon.int, lat.int, fill=chl.int))+
+  coord_quickmap(xlim=lon.borders, ylim=lat.borders) +
+  geom_polygon(data=baltic.coastlines, aes(x=long, y=lat, group=group),
+               fill=land.colour, colour = border.colour)+
   geom_raster()+
   scale_fill_brewer(palette = "Spectral", direction = -1)+
-  coord_quickmap()+
-  facet_grid(year~month)
-ggsave("monthly_Chl_data.pdf", height = 100, width = 200, dpi = 300, units = "mm")
+  facet_grid(day~month)+
+  theme_bw()
+ggsave("Woz_Chl_2016_daily.pdf", height = 600, width = 200, dpi = 300, units = "mm")
 
-
-
-
-
-
-
-
-
-ggplot(matrix.int, aes(lon.int, lat.int, fill=chl))+
+df %>% 
+  filter(year==2018) %>% 
+  ggplot(aes(lon.int, lat.int, fill=chl.int))+
+  coord_quickmap(xlim=lon.borders, ylim=lat.borders) +
+  geom_polygon(data=baltic.coastlines, aes(x=long, y=lat, group=group),
+               fill=land.colour, colour = border.colour)+
   geom_raster()+
-  scale_fill_viridis_c(limits = c(0,10))+
-  coord_quickmap()
-ggsave("plot_matrix_data.pdf")
+  scale_fill_brewer(palette = "Spectral", direction = -1)+
+  facet_grid(day~month)+
+  theme_bw()
+ggsave("Woz_Chl_2018_daily.pdf", height = 600, width = 200, dpi = 300, units = "mm")
 
 
-ggplot(matrix.int[lon.int > 13 & lon.int < 15 & lat.int > 54.6 & lat.int < 55.6],
-       aes(lon.int, lat.int, fill=mean.chl))+
+df.month %>% 
+ggplot(aes(lon.int, lat.int, fill=chl.int))+
+  coord_quickmap(xlim=lon.borders, ylim=lat.borders) +
+  geom_polygon(data=baltic.coastlines, aes(x=long, y=lat, group=group),
+               fill=land.colour, colour = border.colour, lwd=.5)+
   geom_raster()+
-  scale_fill_viridis_c(limits = c(0,10))+
-  coord_quickmap()
-ggsave("plot_matrix_data_Bornholm_0.05.pdf")
-
-
-ggplot(df[lon.int > 13 & lon.int < 15 & lat.int > 54.6 & lat.int < 55.6],
-       aes(lon, lat, col=chl))+
-  geom_point()+
-  scale_color_viridis_c(limits = c(0,10))+
-  coord_quickmap()
-ggsave("plot_matrix_data_Bornholm_full_resolution.pdf")
+  scale_fill_brewer(palette = "Spectral", direction = -1, name="Chl")+
+  facet_grid(year~month)+
+  labs(x="Lon (0.1 deg grid)", y="Lat (0.1 deg grid)")+
+  theme_bw()
+ggsave("Woz_Chl_2016-18_monthly.pdf", height = 100, width = 300, dpi = 300, units = "mm")
 
 
 
+df.weekly %>% 
+ggplot(aes(lon.int, lat.int, fill=chl.int))+
+  coord_quickmap(xlim=lon.borders, ylim=lat.borders) +
+  geom_polygon(data=baltic.coastlines, aes(x=long, y=lat, group=group), fill=land.colour, colour = border.colour, lwd=.5)+
+  geom_raster()+
+  scale_fill_brewer(palette = "Spectral", direction = -1)+
+  facet_grid(week~year)+
+  theme_bw()
+ggsave("Woz_Chl_2016-18_weekly.pdf", height = 400, width = 100, dpi = 300, units = "mm")
 
-# 
-# ggplot(table.int, aes(lon.int, lat.int, fill=mean.chl))+
-#   geom_raster()+
-#   scale_fill_viridis_c(limits = c(0,10))+
-#   coord_quickmap()
-# ggsave("plot_table_data.pdf")
-#   
+
+
+
+
+
+
+
