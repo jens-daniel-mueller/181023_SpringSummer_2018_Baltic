@@ -1,39 +1,44 @@
-#### load required libraries #### 
+# Packages ----------------------------------------------------------------
 
 library(tidyverse)
 library(lubridate)
-library(here)
 library(geosphere)
 
-#### load complete Finnmaid data set and subset relevant information ####
 
-df <- read_csv(here::here("Data/Finnmaid/_summarized_data", "dfall.csv"))
+# Load complete Finnmaid data set and subset relevant information ---------
+
+df <- read_csv(here::here("Data/Finnmaid/_summarized_data",
+                          "Finnmaid_all_2019.csv"))
 
 df <- df %>% 
-  filter(route == "E") %>% 
+  mutate(year = year(date),
+         day = yday(date)) %>% 
+  filter(route == "E", year <= 2018) %>% 
   select(date, year, day, ID, Lon, Lat, Sal, Tem, pCO2) %>% 
   mutate(period = if_else(year == 2018, "2018", "2003-2017"))
 
-#### Define subarea by distance limits from Helsinki ####
 
-dist_low <- 450
-dist_high <- 250
+
+# Define subarea by distance limits from Travemuende ----------------------
+
+dist_low <- 600
+dist_high <- 860
 
 
 #### Start a loop to produce Hovmöller plots ####
 # with various rasters for the distance to Helsinki and time intervals #
 
-for (km in c(10,20,50,100)) {
-  for (days in c(3,5,7,10)) {
+# for (km in c(10,20,50,100)) {
+#   for (days in c(3,5,7,10)) {
 
 
 #### Assign distance intervals starting from Helsinki ####
 
-Hel <- c(24.945831, 60.192059)
-#km <- 20
+Trave <- c(10.8605315, 53.9414096)
+km <- 20
 
 df <- df %>% 
-  mutate(dist = distGeo(cbind(Lon, Lat), Hel)/1e3,
+  mutate(dist = distGeo(cbind(Lon, Lat), Trave)/1e3,
          dist_int = as.numeric(as.character(
            cut(dist, seq(0, 1200, km),
                labels = seq(km/2, 1200-km/2, km)))))
@@ -41,7 +46,7 @@ df <- df %>%
 
 #### Assign temporal intervals in days ####
 
-#days <- 7
+days <- 7
 
 df <- df %>% 
   mutate(day = as.integer(day),
@@ -55,9 +60,10 @@ df <- df %>%
 df_climate <- df %>% 
   select(period, dist_int, time_int, Lat, Lon, pCO2) %>% 
   group_by(period, dist_int, time_int) %>% 
-  summarise_all(list("mean", "sd"), na.rm=TRUE) %>% 
+  summarise_all(list("mean"), na.rm=TRUE) %>% 
   ungroup() %>% 
-  filter(!is.na(period))
+  filter(!is.na(period)) %>% 
+  mutate(pCO2_int = cut(pCO2, c(seq(0,400,50),Inf)))
 
 # calculate delta pCO2 2018 - climatological mean
 
@@ -76,15 +82,15 @@ df_climate_merge <- df_climate_merge %>%
          dpCO2 = cut(dpCO2, c(Inf,0,-50,-100,-150,-Inf),
                      labels = rev(c("<0","0-50","50-100","100-150",">150"))))
 
+
 df_climate_merge %>% 
   ggplot(aes(time_int, dist_int, fill=dpCO2))+
   geom_raster()+
   geom_vline(xintercept = 130, col="red")+
   geom_hline(yintercept = c(dist_high, dist_low), col="red")+
-  scale_y_reverse()+
   scale_fill_viridis_d(direction = -1)+
   xlim(90,180)+
-  labs(x="Day of year", y="Distance Helsinki (km)",
+  labs(x="Day of year", y="Distance Travemünde (km)",
        title = paste("Distance interval:",km,"km | Time interval:",days,"days"))+
   theme_bw()
 
@@ -93,18 +99,18 @@ ggsave(here::here("Plots/dpCO2_distribution", paste("Distance_",km,"_days_",days
 
 
 df_climate %>% 
-  filter(pCO2_mean < 400) %>% 
-  ggplot(aes(time_int, dist_int, fill=pCO2_mean))+
+  filter(time_int > 90, time_int < 180, !is.na(pCO2_int)) %>% 
+  ggplot(aes(time_int, dist_int, fill=pCO2_int))+
   geom_raster()+
   geom_vline(xintercept = 130, col="red")+
   geom_hline(yintercept = c(dist_high, dist_low), col="red")+
-  scale_y_reverse()+
-  scale_fill_viridis_c(direction = -1, name="pCO2 (µatm)", limits=c(0,400))+
-  xlim(90,180)+
-  labs(x="Day of year", y="Distance Helsinki (km)",
+  scale_fill_viridis_d(direction = -1, name="pCO2 (µatm)")+
+  labs(x="Day of year", y="Distance Travemuende (km)",
        title = paste("Distance interval:",km,"km | Time interval:",days,"days | pCO2 < 400 µatm"))+
   theme_bw()+
-  facet_wrap(~period)
+  facet_wrap(~period)+
+  scale_x_continuous(expand = c(0,0))+
+  scale_y_continuous(expand = c(0,0))
 
 ggsave(here::here("Plots/pCO2_distribution", paste("Distance_",km,"_days_",days,".jpg", sep = "")),
        width = 8, height = 4)
@@ -116,7 +122,6 @@ df_climate %>%
   geom_raster()+
   geom_vline(xintercept = 130, col="red")+
   geom_hline(yintercept = c(dist_high, dist_low), col="red")+
-  scale_y_reverse()+
   scale_fill_viridis_c(name="SD pCO2 (µatm)", limits=c(0,100))+
   xlim(90,180)+
   labs(x="Day of year", y="Distance Helsinki (km)",
@@ -129,4 +134,4 @@ ggsave(here::here("Plots/pCO2_SD_distribution", paste("Distance_",km,"_days_",da
 
 
 rm(df_climate, df_climate_merge)
-  }}
+#  }}
